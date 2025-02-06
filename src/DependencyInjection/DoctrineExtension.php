@@ -18,6 +18,8 @@ use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Connections\PrimaryReadReplicaConnection;
 use Doctrine\DBAL\Driver\Middleware as MiddlewareInterface;
 use Doctrine\DBAL\Schema\LegacySchemaManagerFactory;
+use Doctrine\DBAL\Types\Type;
+use Doctrine\DBAL\Types\TypeInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Events;
 use Doctrine\ORM\Id\AbstractIdGenerator;
@@ -217,6 +219,7 @@ class DoctrineExtension extends AbstractDoctrineExtension
             $this->loadDbalConnection($name, $connection, $container);
         }
 
+        $container->registerForAutoconfiguration(TypeInterface::class)->addTag('doctrine.dbal.type');
         $container->registerForAutoconfiguration(MiddlewareInterface::class)->addTag('doctrine.middleware');
 
         $container->registerAttributeForAutoconfiguration(AsMiddleware::class, static function (ChildDefinition $definition, AsMiddleware $attribute) {

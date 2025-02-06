@@ -49,7 +49,7 @@ class ConnectionFactory
 
     private bool $initialized = false;
 
-    /** @param mixed[][] $typesConfig */
+    /** @param array<string, Type|mixed[]> $typesConfig */
     public function __construct(
         private readonly array $typesConfig = [],
         DsnParser|null $dsnParser = null,
@@ -204,10 +204,18 @@ class ConnectionFactory
     private function initializeTypes(): void
     {
         foreach ($this->typesConfig as $typeName => $typeConfig) {
-            if (Type::hasType($typeName)) {
-                Type::overrideType($typeName, $typeConfig['class']);
+            if ($typeConfig instanceof Type) {
+                if (Type::hasType($typeName)) {
+                    Type::getTypeRegistry()->override($typeName, $typeConfig);
+                } else {
+                    Type::getTypeRegistry()->register($typeName, $typeConfig);
+                }
             } else {
-                Type::addType($typeName, $typeConfig['class']);
+                if (Type::hasType($typeName)) {
+                    Type::overrideType($typeName, $typeConfig['class']);
+                } else {
+                    Type::addType($typeName, $typeConfig['class']);
+                }
             }
         }
 

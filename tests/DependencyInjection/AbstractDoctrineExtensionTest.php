@@ -655,6 +655,12 @@ abstract class AbstractDoctrineExtensionTest extends TestCase
         $this->assertEquals('%doctrine.dbal.connection_factory.types%', $container->getDefinition('doctrine.dbal.connection_factory')->getArgument(0));
     }
 
+    public function testAutoconfigureTypes(): void
+    {
+        $container = $this->loadContainer('dbal_types_autoconfigure');
+        $this->assertSame([], $container->getDefinition(TestType::class)->getTag('doctrine.dbal.type'));
+    }
+
     public function testSetCustomFunctions(): void
     {
         if (! interface_exists(EntityManagerInterface::class)) {
