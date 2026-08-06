@@ -17,7 +17,6 @@ use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Exception\InvalidArgumentException;
 use Symfony\Component\DependencyInjection\Reference;
 
-use function array_combine;
 use function array_keys;
 use function is_subclass_of;
 use function method_exists;
@@ -88,14 +87,9 @@ final class RegisterDbalTypePass implements CompilerPassInterface
             $registryRef = new Reference($registryId);
 
             // Inject a ServiceLocator so types are resolved lazily on first use. The locator is
-            // keyed by type name, so the name-to-service-ID map the registry requires is an
-            // identity map.
+            // keyed by type name, and it is the only argument the TypeRegistry needs.
             $locatorRef = ServiceLocatorTagPass::register($container, $services);
-            $typeNames  = array_keys($services);
-            $container->setDefinition($registryId, new Definition(TypeRegistry::class, [
-                $locatorRef,
-                array_combine($typeNames, $typeNames),
-            ]));
+            $container->setDefinition($registryId, new Definition(TypeRegistry::class, [$locatorRef]));
 
             $container
                 ->getDefinition(sprintf('doctrine.dbal.%s_connection.configuration', $name))
